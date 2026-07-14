@@ -1,0 +1,190 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 800" role="img" aria-labelledby="title desc">
+  <title id="title">Key-mapped vector register allocation architecture</title>
+  <desc id="desc">Architecture diagram showing fragmented memory-emulated vector registers being grouped by architectural key, allocated through spill-cost-aware priority, and synchronized by per-physical-register state machines before emitting optimized RISC-V vector code.</desc>
+  <defs>
+    <filter id="shadow" x="-12%" y="-16%" width="124%" height="136%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#17313d" flood-opacity=".15"/>
+    </filter>
+    <filter id="softShadow" x="-16%" y="-20%" width="132%" height="145%">
+      <feDropShadow dx="0" dy="9" stdDeviation="12" flood-color="#17313d" flood-opacity=".12"/>
+    </filter>
+    <marker id="arrowBlue" viewBox="0 0 10 10" refX="8.7" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0 10 5 0 10z" fill="#2e6f9f"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="8.7" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0 10 5 0 10z" fill="#2e9d87"/>
+    </marker>
+    <marker id="arrowOrange" viewBox="0 0 10 10" refX="8.7" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0 10 5 0 10z" fill="#d27637"/>
+    </marker>
+    <marker id="arrowOrangeSmall" viewBox="0 0 10 10" refX="8.7" refY="5" markerWidth="4.8" markerHeight="4.8" orient="auto">
+      <path d="M0 0 10 5 0 10z" fill="#d27637"/>
+    </marker>
+    <style>
+      .title { font: 760 38px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #152c36; }
+      .subtitle { font: 500 17px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #5b6f78; }
+      .panel-title { font: 740 21px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #223d49; }
+      .label { font: 650 14px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #44606b; }
+      .small { font: 520 13px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #667b84; }
+      .tiny { font: 560 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #637985; }
+      .mono { font: 650 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #263f4b; }
+      .mono-light { font: 620 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #54707b; }
+      .panel { stroke: #d4e2e7; stroke-width: 1.8; }
+      .card { fill: #ffffff; stroke: #d7e4e8; stroke-width: 1.7; }
+      .flow-blue { fill: none; stroke: #2e6f9f; stroke-width: 5; stroke-linecap: round; marker-end: url(#arrowBlue); }
+      .flow-green { fill: none; stroke: #2e9d87; stroke-width: 5; stroke-linecap: round; marker-end: url(#arrowGreen); }
+      .flow-orange { fill: none; stroke: #d27637; stroke-width: 5; stroke-linecap: round; marker-end: url(#arrowOrange); }
+      .state-line { fill: none; stroke: #6a9fb2; stroke-width: 3; stroke-linecap: round; }
+    </style>
+  </defs>
+
+  <text x="800" y="62" text-anchor="middle" class="title">Key-Mapped Vector Register Allocation</text>
+  <text x="800" y="94" text-anchor="middle" class="subtitle">Merge fragmented memory-emulated vector values, then emit synchronization only when physical-register state changes</text>
+
+  <g transform="translate(64 154)" filter="url(#shadow)">
+    <rect width="330" height="596" rx="22" fill="#dff3fa" fill-opacity=".42" class="panel"/>
+    <text x="30" y="42" class="panel-title">Translator Input</text>
+    <text x="30" y="69" class="small">
+      <tspan x="30" dy="0">Short virtual ranges point back to</tspan>
+      <tspan x="30" dy="18">architectural vector registers in memory.</tspan>
+    </text>
+
+    <g transform="translate(30 114)">
+      <rect width="270" height="396" rx="16" class="card"/>
+      <text x="24" y="36" class="label">Fragmented live ranges</text>
+      <text x="24" y="62" class="tiny">same source value, many local vregs</text>
+
+      <g transform="translate(23 92)">
+        <text x="0" y="12" class="mono-light">xmm0 / ymm0.low</text>
+        <rect x="0" y="28" width="72" height="16" rx="6" fill="#75b7ce"/>
+        <rect x="96" y="28" width="48" height="16" rx="6" fill="#75b7ce"/>
+        <rect x="168" y="28" width="76" height="16" rx="6" fill="#75b7ce"/>
+        <path d="M0 58H244" stroke="#d7e4e8" stroke-width="2"/>
+      </g>
+
+      <g transform="translate(23 178)">
+        <text x="0" y="12" class="mono-light">ymm3</text>
+        <rect x="18" y="28" width="48" height="16" rx="6" fill="#83cfae"/>
+        <rect x="88" y="28" width="88" height="16" rx="6" fill="#83cfae"/>
+        <rect x="198" y="28" width="46" height="16" rx="6" fill="#83cfae"/>
+        <path d="M0 58H244" stroke="#d7e4e8" stroke-width="2"/>
+      </g>
+
+      <g transform="translate(23 264)">
+        <text x="0" y="12" class="mono-light">temporary vector</text>
+        <rect x="38" y="28" width="112" height="16" rx="6" fill="#e2aa63"/>
+        <rect x="176" y="28" width="54" height="16" rx="6" fill="#e2aa63"/>
+        <path d="M0 58H244" stroke="#d7e4e8" stroke-width="2"/>
+      </g>
+
+      <g transform="translate(23 348)">
+        <rect width="106" height="28" rx="9" fill="#eef7fb" stroke="#9cc6d5"/>
+        <text x="53" y="19" text-anchor="middle" class="tiny">loads</text>
+        <rect x="138" width="106" height="28" rx="9" fill="#fff3e5" stroke="#ddb173"/>
+        <text x="191" y="19" text-anchor="middle" class="tiny">stores</text>
+      </g>
+    </g>
+  </g>
+
+  <g transform="translate(508 154)" filter="url(#shadow)">
+    <rect width="584" height="596" rx="22" fill="#e1f5ec" fill-opacity=".42" class="panel"/>
+    <text x="30" y="42" class="panel-title">Core Idea</text>
+    <text x="30" y="69" class="small">
+      <tspan x="30" dy="0">Use architectural keys to reason about value identity</tspan>
+      <tspan x="30" dy="18">before choosing physical registers.</tspan>
+    </text>
+
+    <g transform="translate(34 112)" filter="url(#softShadow)">
+      <rect width="516" height="132" rx="18" class="card"/>
+      <text x="26" y="36" class="label">1. Key mapping</text>
+      <text x="26" y="62" class="small">Group memory-emulated vregs that denote the same source vector register.</text>
+      <g transform="translate(19 84)">
+        <rect width="98" height="34" rx="11" fill="#eaf5fb" stroke="#88b9cc"/>
+        <text x="49" y="22" text-anchor="middle" class="mono-light">%1</text>
+        <rect x="116" width="98" height="34" rx="11" fill="#eaf5fb" stroke="#88b9cc"/>
+        <text x="165" y="22" text-anchor="middle" class="mono-light">%5</text>
+        <rect x="232" width="98" height="34" rx="11" fill="#eaf5fb" stroke="#88b9cc"/>
+        <text x="281" y="22" text-anchor="middle" class="mono-light">%7</text>
+        <path d="M344 17H396" class="state-line" marker-end="url(#arrowGreen)"/>
+        <rect x="414" width="64" height="34" rx="11" fill="#dff5ed" stroke="#58a98e"/>
+        <text x="446" y="22" text-anchor="middle" class="mono-light">Key-12</text>
+      </g>
+    </g>
+
+    <g transform="translate(34 266)" filter="url(#softShadow)">
+      <rect width="516" height="130" rx="18" class="card"/>
+      <text x="26" y="36" class="label">2. Allocation priority</text>
+      <text x="26" y="62" class="small">
+        <tspan x="26" dy="0">Prefer memory-emulated keys and spill the least costly candidate under</tspan>
+        <tspan x="26" dy="18">pressure.</tspan>
+      </text>
+      <g transform="translate(32 94)">
+        <rect width="126" height="26" rx="9" fill="#dff5ed" stroke="#58a98e"/>
+        <text x="63" y="18" text-anchor="middle" class="tiny">mem keys first</text>
+        <rect x="146" width="126" height="26" rx="9" fill="#edf6fb" stroke="#94bdcd"/>
+        <text x="209" y="18" text-anchor="middle" class="tiny">fixed mappings</text>
+        <rect x="292" width="156" height="26" rx="9" fill="#fff4e8" stroke="#dfb272"/>
+        <text x="370" y="18" text-anchor="middle" class="tiny">spill-cost model</text>
+      </g>
+    </g>
+
+    <g transform="translate(34 420)" filter="url(#softShadow)">
+      <rect width="516" height="124" rx="18" class="card"/>
+      <text x="26" y="36" class="label">3. Alias-aware identity</text>
+      <text x="26" y="62" class="small">
+        <tspan x="26" dy="0">XMM and the low half of YMM share one key when they represent the</tspan>
+        <tspan x="26" dy="18">same architectural value.</tspan>
+      </text>
+      <text x="26" y="104" class="mono-light">xmmN == ymmN.low  ->  K(N, low)</text>
+    </g>
+  </g>
+
+  <g transform="translate(1206 154)" filter="url(#shadow)">
+    <rect width="330" height="596" rx="22" fill="#fff0dd" fill-opacity=".42" class="panel"/>
+    <text x="30" y="42" class="panel-title">Generated Code</text>
+    <text x="30" y="69" class="small">
+      <tspan x="30" dy="0">Per-physical-register state machines</tspan>
+      <tspan x="30" dy="18">suppress redundant memory sync.</tspan>
+    </text>
+
+    <g transform="translate(30 114)">
+      <rect width="270" height="212" rx="16" class="card"/>
+      <text x="24" y="36" class="label">State machines</text>
+      <text x="24" y="62" class="tiny">one tracker per RISC-V vector register</text>
+
+      <g transform="translate(24 88)">
+        <rect width="92" height="34" rx="10" fill="#eff8fb" stroke="#91bdce"/>
+        <text x="46" y="22" text-anchor="middle" class="mono-light">v4:Key-0</text>
+        <path d="M103 17H121" fill="none" stroke="#d27637" stroke-width="2.4" stroke-linecap="round" marker-end="url(#arrowOrangeSmall)"/>
+        <rect x="132" width="92" height="34" rx="10" fill="#fff1e4" stroke="#dda56a"/>
+        <text x="178" y="22" text-anchor="middle" class="mono-light">v4:Key-3</text>
+      </g>
+
+      <g transform="translate(24 146)">
+        <rect x="2" width="88" height="28" rx="9" fill="#edf7fb" stroke="#9cc6d5"/>
+        <text x="46" y="19" text-anchor="middle" class="tiny">spill/store</text>
+        <rect x="134" width="88" height="28" rx="9" fill="#fff1e4" stroke="#dda56a"/>
+        <text x="178" y="19" text-anchor="middle" class="tiny">reload/load</text>
+      </g>
+    </g>
+
+    <g transform="translate(30 358)">
+      <rect width="270" height="152" rx="16" class="card"/>
+      <text x="24" y="36" class="label">Effect</text>
+      <text x="24" y="64" class="small">
+        <tspan x="24" dy="0">Sync moves from local allocation</tspan>
+        <tspan x="24" dy="18">events to actual key changes.</tspan>
+      </text>
+      <g transform="translate(24 106)">
+        <rect width="98" height="30" rx="10" fill="#ffe8dd" stroke="#eaa07e"/>
+        <text x="49" y="20" text-anchor="middle" class="tiny">before: noisy</text>
+        <rect x="136" width="98" height="30" rx="10" fill="#e5f6ef" stroke="#79baa0"/>
+        <text x="185" y="20" text-anchor="middle" class="tiny">after: fewer</text>
+      </g>
+    </g>
+  </g>
+
+  <path class="flow-blue" d="M410 452H492"/>
+  <path class="flow-green" d="M1108 452H1190"/>
+
+</svg>
