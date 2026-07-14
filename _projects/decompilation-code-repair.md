@@ -2,7 +2,7 @@
 layout: page
 title: Function-Level Verification for LLM-Repaired Decompiled Code
 description: Master's thesis project on function-level feedback for LLM-assisted decompiled C/C++ repair.
-img: assets/img/decompilation-code-repair-hero-v3.png
+img: assets/img/decompilation-code-repair-cover.png
 importance: 1
 category: research
 related_publications: false
@@ -55,7 +55,8 @@ related_publications: false
 </style>
 
 <div class="decomp-project-hero">
-  <img src="{{ '/assets/img/decompilation-code-repair-hero-v3.png' | relative_url }}" alt="Function-level record and replay verification workflow">
+  <img src="{{ '/assets/img/decompilation-code-repair-cover.png' | relative_url }}" alt="Hex-Rays splits a program into functions, ChatGPT repairs each function, and repaired functions are recomposed into a complete program">
+  <div class="decomp-project-caption">Project overview: Hex-Rays decompiles a program into functions, ChatGPT repairs each function in isolation, and the repaired functions are recomposed into a complete C/C++ program.</div>
 </div>
 
 This is my Master's thesis project at ICT, CAS. It studies how to give LLM-assisted repair of decompiled C/C++ code a more useful correctness signal than compilation alone. The research details and evaluation are being prepared for publication.
@@ -83,6 +84,12 @@ This motivates a stricter path:
 1. make the decompiled function compilable;
 2. verify function-level equivalence between repaired function <code>G</code> and original binary function <code>F</code>;
 3. only then recompose the repaired functions into a complete C/C++ program.
+
+<div class="decomp-project-figure">
+  <img src="{{ '/assets/img/decompilation-code-repair-hero-v3.png' | relative_url }}" alt="Function-level record and replay verification workflow">
+</div>
+
+<p class="decomp-project-caption">Function-level record-and-replay verification workflow used to check repaired decompiled functions against original binary behavior.</p>
 
 ## Intended impact
 
