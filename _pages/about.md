@@ -8,7 +8,7 @@ subtitle:
 
 profile:
   align: right
-  image: 1B4076FD-CCEF-4495-A07E-A6E9C87CEFF9_1_201_a.jpeg
+  image: about-profile.jpg
   image_circular: false
   more_info: >
     <p>Institute of Computing Technology, CAS</p>
@@ -34,7 +34,7 @@ I am a Master's student at the [Institute of Computing Technology, Chinese Acade
 
 ## Research
 
-My primary research thread is **LLM-driven decompiled code repair with function-level independent verification**. Decompilers (Hex-Rays, Ghidra) produce pseudo-code that cannot be directly recompiled. I built a _Record & Replay_ mechanism that verifies LLM-repaired functions in isolation — without running the entire program — by capturing function context via Intel Pin and replaying with injected return values. The prototype has verified all Coreutils `ls` functions and targets 100% program-level equivalence (vs. the PCodeTrans baseline of 81.48%).
+My primary research thread is **LLM-driven decompiled code repair with function-level independent verification**. Decompilers (Hex-Rays, Ghidra) produce pseudo-code that cannot be directly recompiled. I built a _Record & Replay_ mechanism that verifies LLM-repaired functions in isolation — without running the entire program — by capturing function context via Intel Pin and replaying with injected return values. The prototype has verified 37/49 Coreutils `ls` functions and targets 100% program-level equivalence (vs. the PCodeTrans baseline of 25.92%).
 
 I also contributed to a **binary translator for custom RISC-V silicon** (x86-64 → RISC-V), a multi-year national project that has served multiple companies and is now being adapted for BOSC (Beijing Open Source Chip Research Institute), with XiangShan Kunming Lake on the roadmap.
 
